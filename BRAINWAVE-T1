@@ -1,0 +1,104 @@
+-- Create table for Librarians
+CREATE TABLE Librarians (
+    LibrarianID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Password VARCHAR(100) NOT NULL
+);
+
+-- Create table for Members
+CREATE TABLE Members (
+    MemberID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    Phone VARCHAR(20),
+    Address VARCHAR(255)
+);
+
+-- Create table for Authors
+CREATE TABLE Authors (
+    AuthorID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL
+);
+
+-- Create table for Publishers
+CREATE TABLE Publishers (
+    PublisherID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Address VARCHAR(255)
+);
+
+-- Create table for Genres
+CREATE TABLE Genres (
+    GenreID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL
+);
+
+-- Create table for Books
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    AuthorID INT,
+    PublisherID INT,
+    GenreID INT,
+    ISBN VARCHAR(20),
+    PublicationYear INT,
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID),
+    FOREIGN KEY (PublisherID) REFERENCES Publishers(PublisherID),
+    FOREIGN KEY (GenreID) REFERENCES Genres(GenreID)
+);
+
+-- Create table for Transactions (borrowings and returns)
+CREATE TABLE Transactions (
+    TransactionID INT PRIMARY KEY,
+    MemberID INT,
+    BookID INT,
+    TransactionType VARCHAR(10), -- 'Borrow' or 'Return'
+    TransactionDate DATE,
+    FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID)
+);
+
+-- Example data insertion for Authors
+INSERT INTO Authors (AuthorID, Name) VALUES
+(1, 'J.K. Rowling'),
+(2, 'Stephen King'),
+(3, 'George Orwell');
+
+-- Example data insertion for Publishers
+INSERT INTO Publishers (PublisherID, Name, Address) VALUES
+(1, 'Penguin Books', '123 Main St, City, Country'),
+(2, 'HarperCollins', '456 Oak Ave, Town, Country');
+
+-- Example data insertion for Genres
+INSERT INTO Genres (GenreID, Name) VALUES
+(1, 'Fantasy'),
+(2, 'Horror'),
+(3, 'Science Fiction');
+
+-- Example data insertion for Books
+INSERT INTO Books (BookID, Title, AuthorID, PublisherID, GenreID, ISBN, PublicationYear) VALUES
+(1, 'Harry Potter and the Philosopher''s Stone', 1, 1, 1, '9780747532743', 1997),
+(2, '1984', 3, 2, 3, '9780451524935', 1949);
+
+-- Example data insertion for Librarians (assuming passwords are hashed for security)
+INSERT INTO Librarians (LibrarianID, Name, Email, Password) VALUES
+(1, 'John Smith', 'john@example.com', 'hashed_password_here');
+
+-- Example data insertion for Members
+INSERT INTO Members (MemberID, Name, Email, Phone, Address) VALUES
+(1, 'Jane Doe', 'jane@example.com', '123-456-7890', '789 Elm St, City, Country');
+
+-- Example data insertion for Transactions (assuming TransactionType can be 'Borrow' or 'Return')
+INSERT INTO Transactions (TransactionID, MemberID, BookID, TransactionType, TransactionDate) VALUES
+(1, 1, 1, 'Borrow', '2024-07-10'),
+(2, 1, 1, 'Return', '2024-07-15');
+
+-- Sample query: Retrieve all books borrowed by a specific member
+SELECT Books.Title, Authors.Name AS Author, Publishers.Name AS Publisher
+FROM Transactions
+JOIN Books ON Transactions.BookID = Books.BookID
+JOIN Authors ON Books.AuthorID = Authors.AuthorID
+JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
+WHERE Transactions.MemberID = 1 AND Transactions.TransactionType = 'Borrow';
+
